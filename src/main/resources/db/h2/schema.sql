@@ -1,0 +1,7 @@
+--CREATE TABLE IF NOT EXISTS TASK (
+--    TASK_ID bigint NOT NULL AUTO_INCREMENT,
+--    TITLE varchar(100) NOT NULL UNIQUE,
+--    ORDER bigint NOT NULL,
+--    COMPLETED varchar(100) NOT NULL,
+--    PRIMARY KEY (TASK_ID)
+--);
