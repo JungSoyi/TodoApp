@@ -2,45 +2,56 @@ package com.soloproject.soloProject.tasks;
 
 import com.soloproject.soloProject.tasks.dto.TaskPatchDto;
 import com.soloproject.soloProject.tasks.dto.TaskPostDto;
+import com.soloproject.soloProject.tasks.dto.TaskResponseDto;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.soloproject.soloProject.tasks.TaskMapper;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+@CrossOrigin
+@RequestMapping("/")
 @RestController
 public class TasksController {
 
     private final TaskService taskService;
+    private final TaskMapper mapper;
 
-    public TasksController(TaskService taskService){
+    public TasksController(TaskService taskService, TaskMapper mapper){
         this.taskService = taskService;
+        this.mapper = mapper;
     }
     @PostMapping
     public ResponseEntity postTask(@RequestBody TaskPostDto taskPostDto){
 
-        Task task = new Task();
-        task.setTitle(taskPostDto.getTitle());
-        task.setOrder(taskPostDto.getOrder());
-        task.setComplete(taskPostDto.getComplete());
+        Task task = mapper.taskPostDtoToTask(taskPostDto);
 
         Task response = taskService.createTask(task);
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(mapper.taskToTaskResponseDto(response), HttpStatus.CREATED);
 
     }
 
     @GetMapping("/{task-id}")
     public ResponseEntity getTask(@PathVariable("task-id") int taskId){
         Task response = taskService.findTask(taskId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(mapper.taskToTaskResponseDto(response), HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity getTasks(){
-        List<Task> response = taskService.findTasks();
+        List<Task> tasks = taskService.findTasks();
+
+        List<TaskResponseDto> response =
+                tasks.stream()
+                        .map(task -> mapper.taskToTaskResponseDto(task))
+                        .collect(Collectors.toList());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -49,15 +60,9 @@ public class TasksController {
                                     @RequestBody TaskPatchDto taskPatchDto){
         taskPatchDto.setTaskId(taskId);
 
-        Task task = new Task();
-        task.setTaskId(taskPatchDto.getTaskId());
-        task.setTitle(taskPatchDto.getTitle());
-        task.setOrder(taskPatchDto.getOrder());
-        task.setComplete(taskPatchDto.getComplete());
+        Task response = taskService.updateTask(mapper.taskPatchDtoToTask(taskPatchDto));
 
-        Task response = taskService.updateTask(task);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(mapper.taskToTaskResponseDto(response), HttpStatus.OK);
     }
 
     @DeleteMapping("/{task-id}")

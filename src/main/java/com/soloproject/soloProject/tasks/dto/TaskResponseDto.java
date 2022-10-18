@@ -10,7 +10,7 @@ public class TaskResponseDto {
 
     private String title;
 
-    private int order;
+    private int orders;
 
     private boolean complete;
 }

@@ -3,7 +3,7 @@ package com.soloproject.soloProject.tasks.dto;
 public class TaskPatchDto {
     private int taskId;
     private String title;
-    private int order;
+    private int orders;
     private boolean complete;
 
     public String getTitle(){
@@ -15,11 +15,11 @@ public class TaskPatchDto {
     }
 
     public int getOrder(){
-        return order;
+        return orders;
     }
 
     public void setOrder(int order){
-        this.order = order;
+        this.orders = orders;
     }
 
     public boolean getComplete(){

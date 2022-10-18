@@ -3,33 +3,54 @@ package com.soloproject.soloProject.tasks;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
+
+    private final TaskRepository taskRepository;
+
+    public TaskService(TaskRepository taskRepository){
+        this.taskRepository = taskRepository;
+    }
     public Task createTask(Task task){
-        Task createdTask = task;
-        return createdTask;
+
+        return taskRepository.save(task);
     }
 
     public Task updateTask(Task task){
-        Task updatedTask = task;
-        return updatedTask;
+        Task findTask = findVerifiedTask(task.getTaskId());
+        Optional.ofNullable(task.getTitle())
+                .ifPresent(title -> findTask.setTitle(title));
+        Optional.ofNullable(task.getOrders())
+                .ifPresent(orders -> findTask.setOrders(orders));
+        Optional.ofNullable(task.isComplete())
+                .ifPresent(complete -> findTask.setComplete(complete));
+        return taskRepository.save(findTask);
     }
 
     public Task findTask(int taskId){
-        Task task =
-                new Task(taskId, "study", 1, true);
-        return task;
+        return findVerifiedTask(taskId);
     }
 
     public List<Task> findTasks(){
-        List<Task> tasks = List.of(
-                new Task(1, "study", 1, true)
-        );
-        return tasks;
+        return (List<Task>) taskRepository.findAll();
     }
 
     public void deleteTask(int taskId){
+        Task findTask = findVerifiedTask(taskId);
 
+        taskRepository.delete(findTask);
+
+    }
+
+    public Task findVerifiedTask(int taskId){
+        Optional<Task> optionalTask =
+                taskRepository.findById(taskId);
+        Task findTask =
+                optionalTask.orElseThrow(() ->
+                        new BusinessLogicException(ExceptionCode.TASK_NOT_EXIST));
+
+        return findTask;
     }
 }
